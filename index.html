@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Card Loyalty</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f4f4;color:#171717}
+header{background:#111;color:white;padding:22px 18px;text-align:center}
+header h1{margin:0;font-size:28px} header p{margin:7px 0 0;color:#ccc}
+.container{max-width:700px;margin:auto;padding:18px}
+.card{background:#111;color:#fff;border-radius:22px;padding:24px;margin:10px 0 20px;box-shadow:0 10px 30px #0002}
+.card .brand{font-size:13px;letter-spacing:2px;color:#aaa}.points{font-size:42px;font-weight:800;margin:15px 0 5px}.stars{font-size:25px;letter-spacing:4px}
+.box{background:#fff;border-radius:16px;padding:18px;margin:14px 0;box-shadow:0 3px 14px #0001}
+label{display:block;font-weight:700;margin:12px 0 6px}input,button{width:100%;padding:13px;border-radius:10px;border:1px solid #ddd;font-size:16px}
+button{background:#111;color:#fff;border:0;font-weight:700;cursor:pointer;margin-top:10px}
+button.secondary{background:#eee;color:#111}.small{font-size:13px;color:#666}.success{background:#e8fff0;color:#087a35;padding:10px;border-radius:10px;margin-top:10px;display:none}
+.nav{display:flex;gap:8px}.nav button{flex:1}.hidden{display:none}
+table{width:100%;border-collapse:collapse;margin-top:10px}th,td{text-align:left;padding:9px;border-bottom:1px solid #eee}
+.badge{display:inline-block;background:#eee;border-radius:20px;padding:5px 9px;font-size:12px}
+</style>
+</head>
+<body>
+<header><h1>🖤 CARD LOYALTY</h1><p>Système de fidélité NFC</p></header>
+<div class="container">
+  <div class="nav">
+    <button onclick="show('client')">👤 Client</button>
+    <button onclick="show('admin')">⚙️ Gestion</button>
+  </div>
+
+  <section id="client">
+    <div class="box">
+      <label>ID de la carte</label>
+      <input id="clientId" value="001" placeholder="001">
+      <button onclick="loadClient()">Afficher ma carte</button>
+    </div>
+    <div class="card">
+      <div class="brand">CARD LOYALTY</div>
+      <h2 id="clientName">Client 001</h2>
+      <div class="points" id="clientPoints">0</div>
+      <div>POINTS</div>
+      <div class="stars" id="stars">☆☆☆☆☆</div>
+      <p id="reward">Encore 10 points pour obtenir une récompense 🎁</p>
+    </div>
+  </section>
+
+  <section id="admin" class="hidden">
+    <div class="box">
+      <h2>⚙️ Gestion des cartes</h2>
+      <p class="small">Prototype local : les données sont enregistrées dans ce navigateur.</p>
+      <label>ID carte</label><input id="adminId" value="001">
+      <label>Nom du client</label><input id="adminName" value="Client 001">
+      <label>Points</label><input id="adminPoints" type="number" min="0" value="0">
+      <button onclick="saveCard()">💾 Enregistrer</button>
+      <div id="msg" class="success">Carte enregistrée ✅</div>
+    </div>
+    <div class="box">
+      <h3>Exemple de récompense</h3>
+      <p>10 points = 1 récompense 🎁</p>
+      <p class="small">Dans la version connectée, le commerçant pourra gérer plusieurs clients depuis un vrai tableau de bord.</p>
+    </div>
+  </section>
+</div>
+
+<script>
+function key(id){return 'card_'+String(id).trim();}
+function getCard(id){
+  const d=localStorage.getItem(key(id));
+  return d?JSON.parse(d):{id:String(id),name:'Client '+id,points:0};
+}
+function loadClient(){
+  const id=document.getElementById('clientId').value||'001';
+  const c=getCard(id);
+  document.getElementById('clientName').textContent=c.name;
+  document.getElementById('clientPoints').textContent=c.points;
+  let n=Math.min(5,Math.floor(c.points/2));
+  document.getElementById('stars').textContent='★'.repeat(n)+'☆'.repeat(5-n);
+  const left=Math.max(0,10-c.points%10);
+  document.getElementById('reward').textContent=left===0?'Récompense disponible 🎁':'Encore '+left+' point(s) pour la prochaine récompense 🎁';
+}
+function saveCard(){
+  const id=document.getElementById('adminId').value||'001';
+  const c={id:id,name:document.getElementById('adminName').value||('Client '+id),points:Number(document.getElementById('adminPoints').value)||0};
+  localStorage.setItem(key(id),JSON.stringify(c));
+  document.getElementById('msg').style.display='block';
+  setTimeout(()=>document.getElementById('msg').style.display='none',1800);
+}
+function show(x){
+  document.getElementById('client').classList.toggle('hidden',x!=='client');
+  document.getElementById('admin').classList.toggle('hidden',x!=='admin');
+  if(x==='client') loadClient();
+}
+loadClient();
+</script>
+</body>
+</html>
